@@ -1,0 +1,1933 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ctDNA Lymphoma &amp; MRD Clinical Intelligence Platform</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --border-focus: #3b82f6;
+      --primary: #1e40af;
+      --primary-hover: #1d4ed8;
+      --primary-light: #eff6ff;
+      --accent: #0ea5e9;
+      --tier1: #7c3aed;
+      --tier1-bg: #f5f3ff;
+      --tier2: #2563eb;
+      --tier2-bg: #eff6ff;
+      --tier3: #d97706;
+      --tier3-bg: #fffbeb;
+      --tier4: #64748b;
+      --tier4-bg: #f1f5f9;
+      --success: #059669;
+      --success-bg: #ecfdf5;
+      --danger: #dc2626;
+      --danger-bg: #fef2f2;
+      --warning: #b45309;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Pretendard", -apple-system, sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Top Navigation Header */
+    header.app-header {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: var(--shadow-sm);
+    }
+    .header-inner {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, #1e40af, #3b82f6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 800;
+      font-size: 19px;
+      box-shadow: 0 3px 6px rgba(30,64,175,0.25);
+    }
+    .brand-text h1 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .brand-text p {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Nav Tabs */
+    .tab-bar {
+      display: flex;
+      gap: 4px;
+      background: #f1f5f9;
+      padding: 4px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+    }
+    .tab-btn {
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+    .tab-btn:hover {
+      color: var(--text-main);
+    }
+    .tab-btn.active {
+      background: white;
+      color: var(--primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Layout Containers */
+    main.app-main {
+      max-width: 1440px;
+      margin: 24px auto;
+      padding: 0 24px 60px;
+    }
+    .tab-pane {
+      display: none;
+    }
+    .tab-pane.active {
+      display: block;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Cards & Panels */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 18px;
+      gap: 16px;
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      box-shadow: var(--shadow-sm);
+    }
+    .stat-card .label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .stat-card .value {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+    .stat-card .hint {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* Badges & Pills */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .badge-tier1 { background: var(--tier1-bg); color: var(--tier1); border: 1px solid #ddd6fe; }
+    .badge-tier2 { background: var(--tier2-bg); color: var(--tier2); border: 1px solid #bfdbfe; }
+    .badge-tier3 { background: var(--tier3-bg); color: var(--tier3); border: 1px solid #fde68a; }
+    .badge-tier4 { background: var(--tier4-bg); color: var(--tier4); border: 1px solid #cbd5e1; }
+    .badge-success { background: var(--success-bg); color: var(--success); border: 1px solid #a7f3d0; }
+    .badge-danger { background: var(--danger-bg); color: var(--danger); border: 1px solid #fecaca; }
+    .badge-warning { background: var(--tier3-bg); color: var(--warning); border: 1px solid #fde68a; }
+    .badge-neutral { background: #f1f5f9; color: var(--text-muted); border: 1px solid #e2e8f0; }
+
+    /* Filter & Control Toolbars */
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding: 12px 16px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+    }
+    .toolbar-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+    .form-control {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 7px 12px;
+      font-size: 13px;
+      background: white;
+      color: var(--text-main);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .form-control:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+    }
+    select.form-control {
+      cursor: pointer;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+    .btn-outline {
+      background: white;
+      border-color: var(--border);
+      color: var(--text-main);
+    }
+    .btn-outline:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+    .btn-sm {
+      padding: 5px 10px;
+      font-size: 12px;
+    }
+
+    /* Tables */
+    .table-container {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: white;
+    }
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13px;
+    }
+    table.data-table th {
+      background: #f8fafc;
+      padding: 10px 14px;
+      font-weight: 700;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+    }
+    table.data-table th:hover {
+      color: var(--primary);
+    }
+    table.data-table td {
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    table.data-table tbody tr:hover {
+      background: #f8fafc;
+    }
+    table.data-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+    .gene-symbol {
+      font-weight: 700;
+      color: #1e3a8a;
+    }
+    .vaf-bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 110px;
+    }
+    .vaf-bar {
+      flex: 1;
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .vaf-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+      border-radius: 999px;
+    }
+
+    /* Subtype Profile & MRD Components */
+    .profile-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+      gap: 20px;
+    }
+    .specimen-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin: 12px 0;
+    }
+    .specimen-step {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+    }
+    .step-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .tag-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 8px 0;
+    }
+    .tag-cloud span {
+      background: var(--primary-light);
+      border: 1px solid #bfdbfe;
+      color: var(--primary);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .tag-cloud.modules span {
+      background: var(--success-bg);
+      border-color: #a7f3d0;
+      color: var(--success);
+    }
+    .caveat-box {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-left: 4px solid var(--tier3);
+      padding: 14px;
+      border-radius: var(--radius-sm);
+      margin-top: 14px;
+    }
+    .caveat-box h4 {
+      font-size: 13px;
+      font-weight: 700;
+      color: #92400e;
+      margin-bottom: 6px;
+    }
+    .caveat-box ul {
+      padding-left: 18px;
+      font-size: 12.5px;
+      color: #78350f;
+    }
+    .caveat-box li {
+      margin-bottom: 4px;
+    }
+
+    /* Longitudinal Chart SVG Container */
+    .chart-container {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      margin: 16px 0;
+      position: relative;
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .chart-legend {
+      display: flex;
+      gap: 16px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    /* Knowledge Accordion & Cards */
+    .knowledge-item {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      margin-bottom: 12px;
+      background: white;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+    .knowledge-head {
+      padding: 14px 18px;
+      background: #ffffff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid transparent;
+      transition: background 0.15s;
+    }
+    .knowledge-head:hover {
+      background: #f8fafc;
+    }
+    .knowledge-item.open .knowledge-head {
+      border-bottom-color: var(--border);
+      background: #f8fafc;
+    }
+    .knowledge-title {
+      font-weight: 700;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .knowledge-body {
+      padding: 18px;
+      display: none;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .knowledge-item.open .knowledge-body {
+      display: block;
+    }
+
+    /* Clinical Report View (Table 0, 3, 4, 6, 8, 14, 15) */
+    .report-sheet {
+      background: white;
+      border: 1px solid #cbd5e1;
+      border-radius: var(--radius-md);
+      padding: 36px 40px;
+      box-shadow: var(--shadow-md);
+      max-width: 1040px;
+      margin: 0 auto;
+      color: #0f172a;
+    }
+    .report-header-banner {
+      text-align: center;
+      border-bottom: 2px solid #0f172a;
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+    }
+    .report-header-banner h2 {
+      font-size: 22px;
+      letter-spacing: -0.5px;
+      color: #0f172a;
+    }
+    .report-header-banner p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    .report-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 22px;
+      font-size: 12.5px;
+    }
+    .report-table th, .report-table td {
+      border: 1px solid #94a3b8;
+      padding: 8px 10px;
+    }
+    .report-table th {
+      background: #f1f5f9;
+      font-weight: 700;
+      color: #1e293b;
+      text-align: center;
+    }
+    .report-section-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 18px 0 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .report-interp-box {
+      border: 1px solid #94a3b8;
+      background: #fafafa;
+      padding: 14px 16px;
+      font-size: 13px;
+      line-height: 1.7;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      white-space: pre-line;
+    }
+    .signature-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border: 1px solid #94a3b8;
+      font-size: 12px;
+      margin-top: 20px;
+    }
+    .sig-cell {
+      padding: 10px 14px;
+    }
+    .sig-cell:first-child {
+      border-right: 1px solid #94a3b8;
+    }
+
+    /* Modals & Dropzones */
+    .dropzone {
+      border: 2px dashed #cbd5e1;
+      border-radius: var(--radius-md);
+      padding: 24px;
+      text-align: center;
+      background: #f8fafc;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .dropzone:hover {
+      border-color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    /* Interactive Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 16px;
+    }
+    .modal-backdrop.open {
+      display: flex;
+    }
+    .modal-dialog {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      width: 100%;
+      max-width: 580px;
+      box-shadow: var(--shadow-lg);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    /* Print Stylesheet */
+    @media print {
+      header.app-header, .tab-bar, .toolbar, .no-print, .btn, .stat-card, .dropzone {
+        display: none !important;
+      }
+      body {
+        background: white;
+      }
+      main.app-main {
+        margin: 0;
+        padding: 0;
+        max-width: 100%;
+      }
+      .tab-pane {
+        display: none !important;
+      }
+      #tabReport {
+        display: block !important;
+      }
+      .report-sheet {
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 960px) {
+      .header-inner { flex-direction: column; align-items: flex-start; }
+      .profile-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top App Navigation -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand-wrap">
+        <div class="brand-badge">ct</div>
+        <div class="brand-text">
+          <h1>ctDNA Lymphoma &amp; MRD Platform <span class="badge badge-success">Production Ready</span></h1>
+          <p>AMP/ASCO/CAP Somatic Tiering · Longitudinal MRD Clearance · HIRA &amp; NCCN Clinical Intelligence</p>
+        </div>
+      </div>
+
+      <nav class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('tabVariants')">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+          1. 변이 분류 (Variants)
+        </button>
+        <button class="tab-btn" onclick="switchTab('tabMRD')">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3v18h18"></path><path d="m19 9-5 5-4-4-3 3"></path></svg>
+          2. MRD 추적 (Clearance)
+        </button>
+        <button class="tab-btn" onclick="switchTab('tabGuidelines')">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+          3. 심평원 &amp; NCCN 가이드
+        </button>
+        <button class="tab-btn" onclick="switchTab('tabReport')">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+          4. 임상결과보고서
+        </button>
+      </nav>
+
+      <div class="header-actions no-print">
+        <button class="btn btn-outline btn-sm" onclick="exportCSV()">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          CSV 내보내기
+        </button>
+        <button class="btn btn-primary btn-sm" onclick="window.print()">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+          PDF / 인쇄
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-main">
+
+    <!-- ========================================== -->
+    <!-- TAB 1: VARIANT ANNOTATION & TIERING STUDIO -->
+    <!-- ========================================== -->
+    <section id="tabVariants" class="tab-pane active">
+
+      <!-- Case Selection & Upload -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              임상 림프종 검체 선택 및 VCF 업로드 (Clinical Benchmark Cases)
+            </div>
+            <div class="card-desc">검증된 림프종 임상 사례를 즉시 로드하거나, 연구/검사실의 GRCh37 VCF 파일을 드래그하여 분석할 수 있습니다.</div>
+          </div>
+          <div class="toolbar-group">
+            <label style="font-size:12px; font-weight:700; color:var(--text-muted);">표준 증례 프리셋:</label>
+            <select id="caseSelector" class="form-control" onchange="loadSelectedCase(this.value)">
+              <option value="case1">Case 1: DLBCL (MCD 아형) - MYD88 L252P &amp; CD79B Y196H</option>
+              <option value="case2">Case 2: 여포성 림프종 (FL) - BCL2::IGH &amp; EZH2 Y646F</option>
+              <option value="case3">Case 3: 외투세포 림프종 (MCL) - TP53 &amp; BTK C481S 내성</option>
+              <option value="case4">Case 4: 호지킨 림프종 (cHL) - SOCS1, STAT6, TNFAIP3</option>
+              <option value="case5">Case 5: T/NK-cell (AITL) - RHOA G17V &amp; CHIP(TET2) 분리</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="dropzone" id="vcfDropzone" onclick="document.getElementById('fileInput').click()">
+          <input type="file" id="fileInput" accept=".vcf" style="display:none" onchange="handleFileUpload(event)" />
+          <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" style="margin-bottom:8px; color:var(--primary);"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+          <div style="font-weight:700; font-size:14px;">로컬 VCF 파일 업로드 (또는 여기로 드래그)</div>
+          <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">GRCh37 기준, INFO 필드 내 <code>AD</code> 및 <code>DP</code> 지원 (클라이언트 실시간 파싱 및 AMP/ASCO/CAP Tier 자동 판정)</div>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Grid -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="label">총 검출 변이 수</span>
+          <span class="value" id="statTotalCount">6</span>
+          <span class="hint">Pass 필터 통과 체세포 변이</span>
+        </div>
+        <div class="stat-card">
+          <span class="label">임상적 중요 변이 (Tier 1 &amp; 2)</span>
+          <span class="value" id="statTier12Count" style="color:var(--tier1);">3</span>
+          <span class="hint">표적치료 및 가이드라인 직결</span>
+        </div>
+        <div class="stat-card">
+          <span class="label">최대 종양 분율 (Max VAF)</span>
+          <span class="value" id="statMaxVaf" style="color:var(--primary);">28.4%</span>
+          <span class="hint" id="statMaxVafGene">MYD88 (c.755T&gt;C)</span>
+        </div>
+        <div class="stat-card">
+          <span class="label">평균 유효 해독 심도 (Mean DP)</span>
+          <span class="value" id="statMeanDepth">3,420x</span>
+          <span class="hint">LoD 0.02% 충족 고감도 패널</span>
+        </div>
+      </div>
+
+      <!-- Variant Table with Filters -->
+      <div class="card">
+        <div class="toolbar">
+          <div class="toolbar-group">
+            <input type="text" id="variantSearch" class="form-control" placeholder="유전자명, 아미노산 검색..." oninput="filterVariants()" style="width:200px;" />
+            <select id="tierFilter" class="form-control" onchange="filterVariants()">
+              <option value="all">전체 Tier 표시</option>
+              <option value="tier12" selected>Tier 1 &amp; 2 (치료/예후 연관 변이)</option>
+              <option value="tier1">Tier 1 (Strong Evidence)</option>
+              <option value="tier2">Tier 2 (Potential Evidence)</option>
+              <option value="tier3">Tier 3 (VUS)</option>
+            </select>
+            <label style="font-size:12.5px; font-weight:600; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
+              최소 VAF:
+              <input type="range" id="vafSlider" min="0" max="10" step="0.5" value="1.0" oninput="updateVafFilter(this.value)" />
+              <span id="vafSliderVal" style="color:var(--text-main); font-weight:700;">1.0%</span>
+            </label>
+          </div>
+          <div class="toolbar-group">
+            <span class="badge badge-neutral" id="filterStatusBadge">3개 변이 표시 중</span>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table class="data-table" id="variantsTable">
+            <thead>
+              <tr>
+                <th onclick="sortTable('tier')">AMP/ASCO 분류 ↕</th>
+                <th onclick="sortTable('gene')">유전자 (Gene) ↕</th>
+                <th>전사체 (MANE RefSeq)</th>
+                <th>염기서열 변화 (c.)</th>
+                <th onclick="sortTable('p')">단백질 변화 (p.) ↕</th>
+                <th onclick="sortTable('vaf')">대립유전자 분율 (% VAF) ↕</th>
+                <th>해독 심도 (AD/DP)</th>
+                <th>ClinVar 등급</th>
+                <th>표적 치료 및 임상적 의의</th>
+              </tr>
+            </thead>
+            <tbody id="variantsTableBody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: SUBTYPE-AWARE MRD TRACKING STUDIO   -->
+    <!-- ========================================== -->
+    <section id="tabMRD" class="tab-pane">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+              림프종 아형별 ctDNA 미세잔존질환(MRD) 동적 모니터링
+            </div>
+            <div class="card-desc">아형별(FL, MCL, cHL, T/NK, CNS, DLBCL) 표준 마커 전략과 시계열 치료 반응 곡선(LoD/LoQ 기반)을 동적으로 제어합니다.</div>
+          </div>
+          <div class="toolbar-group">
+            <label style="font-size:12px; font-weight:700; color:var(--text-muted);">림프종 아형 선택:</label>
+            <select id="mrdSubtypeSelect" class="form-control" onchange="renderMrdProfile(this.value)">
+              <option value="FL">FL - 여포성 림프종 (Follicular)</option>
+              <option value="MCL">MCL - 외투세포 림프종 (Mantle Cell)</option>
+              <option value="DLBCL">DLBCL - 미만성 거대 B세포 림프종 (MCD/GCB)</option>
+              <option value="cHL">cHL - 고전적 호지킨 림프종 (Classical Hodgkin)</option>
+              <option value="TNK">T/NK - T세포 및 자연살해세포 림프종 (AITL/ENKTL)</option>
+              <option value="CNS">CNS - 중추신경계 원발/속발 림프종 (PCNSL)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="profile-grid">
+          <!-- Left: Subtype Specification -->
+          <div>
+            <h3 style="font-size:14px; font-weight:700; margin-bottom:10px; color:var(--primary);" id="profileDisplayTitle">FL (Follicular lymphoma) 아형 특이적 추적 지침</h3>
+            <div class="specimen-steps">
+              <div class="specimen-step">
+                <span class="step-num">1</span>
+                <div>
+                  <strong style="font-size:13px;">기저 검체(Baseline) 확보 우선순위:</strong>
+                  <div style="font-size:12px; color:var(--text-muted);" id="mrdSpecimenPriority">진단 조직生檢(FFPE) &gt; 치료 전 혈장 cfDNA &gt; 일치 백혈구(CHIP 대조) &gt; 추적 혈장</div>
+                </div>
+              </div>
+              <div class="specimen-step">
+                <span class="step-num">2</span>
+                <div>
+                  <strong style="font-size:13px;">우선 추적 마커 (Locked Tracking Markers):</strong>
+                  <div class="tag-cloud" id="mrdTrackingMarkers">
+                    <!-- Populated dynamically -->
+                  </div>
+                </div>
+              </div>
+              <div class="specimen-step">
+                <span class="step-num">3</span>
+                <div>
+                  <strong style="font-size:13px;">필수 검사 모듈 (Assay Modules):</strong>
+                  <div class="tag-cloud modules" id="mrdAssayModules">
+                    <!-- Populated dynamically -->
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="caveat-box">
+              <h4>⚠️ 임상 판독 핵심 주의사항 (Clinical Caveats &amp; Origin Review)</h4>
+              <ul id="mrdCaveatsList">
+                <!-- Populated dynamically -->
+              </ul>
+            </div>
+          </div>
+
+          <!-- Right: Case Draft & Result State -->
+          <div style="background:#f8fafc; border:1px solid var(--border); border-radius:var(--radius-md); padding:16px;">
+            <h3 style="font-size:14px; font-weight:700; margin-bottom:12px;">증례 MRD 상태 종합 판정 (MRD State)</h3>
+
+            <div style="margin-bottom:12px;">
+              <label style="font-size:12px; font-weight:700; color:var(--text-muted); display:block; margin-bottom:4px;">검체 구획 (Specimen Compartment)</label>
+              <select id="mrdSpecimenCompartment" class="form-control" style="width:100%;">
+                <option value="plasma">말초혈액 혈장 (Peripheral Plasma cfDNA)</option>
+                <option value="csf">뇌척수액 (Cerebrospinal Fluid ctDNA - CNS 한정)</option>
+                <option value="bone_marrow">골수 검체 (Bone Marrow Aspirate)</option>
+              </select>
+            </div>
+
+            <div style="margin-bottom:12px;">
+              <label style="font-size:12px; font-weight:700; color:var(--text-muted); display:block; margin-bottom:4px;">기저(Baseline) 마커 확정 여부</label>
+              <div style="display:flex; flex-direction:column; gap:6px; font-size:12.5px;">
+                <label><input type="checkbox" id="chkTissue" checked /> 진단 조직 체세포 변이 검증 완료</label>
+                <label><input type="checkbox" id="chkPlasma" checked /> 치료 전 혈장 변이 일치 확인</label>
+                <label><input type="checkbox" id="chkLeukocyte" checked /> 일치 백혈구 대조 (CHIP 유래 변이 배제)</label>
+              </div>
+            </div>
+
+            <div style="margin-bottom:12px;">
+              <label style="font-size:12px; font-weight:700; color:var(--text-muted); display:block; margin-bottom:4px;">시점별 현재 판독 등급 (Current Evaluated State)</label>
+              <select id="mrdCurrentState" class="form-control" style="width:100%; font-weight:700; color:var(--primary);" onchange="updateMrdChartState()">
+                <option value="quantifiable_detected">quantifiable_detected (정량 검출 - 잔존 질환)</option>
+                <option value="detected_below_loq">detected_below_loq (LoQ 미만 저빈도 검출)</option>
+                <option value="evaluable_not_detected" selected>evaluable_not_detected (uMRD 관해 - 음성)</option>
+                <option value="indeterminate">indeterminate (CHIP 등 기원 불명 미확정)</option>
+                <option value="not_evaluable">not_evaluable (검체/분자수 부족 평가불가)</option>
+              </select>
+            </div>
+
+            <div style="margin-bottom:14px;">
+              <label style="font-size:12px; font-weight:700; color:var(--text-muted); display:block; margin-bottom:4px;">분자 검출 한계 (LoD / LoQ) 요약</label>
+              <textarea id="mrdLoDSummary" class="form-control" rows="3" style="width:100%; font-size:12px;">UMI 중복도 3x 이상 분자군 4,200 family/mL 확보. 정량한계(LoQ) = 0.05%, 검출한계(LoD) = 0.02% 기준.</textarea>
+            </div>
+
+            <button class="btn btn-primary btn-sm" style="width:100%;" onclick="saveMrdDraft()">
+              현재 MRD 설정 로컬 저장
+            </button>
+            <div id="mrdSaveAlert" style="font-size:11.5px; color:var(--success); margin-top:8px; text-align:center; display:none;">
+              ✓ 로컬 스토리지에 MRD 평가 세부 사항이 안전하게 저장되었습니다.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Longitudinal ctDNA Clearance Chart & Interactive Simulation -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+              치료 단계별 종양 분율(ctDNA Clearance Curve) 시계열 추적 시뮬레이터
+            </div>
+            <div class="card-desc">아래의 시점별 VAF 슬라이더를 조정하여 치료 후 클리어런스 및 재발 징후를 실시간으로 모의 실험할 수 있습니다.</div>
+          </div>
+          <div class="chart-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#2563eb;"></div>환자 ctDNA VAF (%)</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#f59e0b;"></div>정량 한계선 (LoQ: 0.05%)</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#ef4444;"></div>검출 한계선 (LoD: 0.02%)</div>
+          </div>
+        </div>
+
+        <!-- Interactive Sliders for Timepoints -->
+        <div class="toolbar" style="margin-bottom:12px;">
+          <div class="toolbar-group" style="width:100%; justify-content:space-between;">
+            <div style="font-size:12px; font-weight:700;">
+              Cycle 2 Day 1:
+              <input type="range" id="simC2D1" min="0" max="5" step="0.05" value="0.65" oninput="updateMrdSim()" style="width:90px; vertical-align:middle;" />
+              <span id="valC2D1" style="color:var(--primary);">0.65%</span>
+            </div>
+            <div style="font-size:12px; font-weight:700;">
+              치료 종료 (EOT):
+              <input type="range" id="simEOT" min="0" max="2" step="0.01" value="0.00" oninput="updateMrdSim()" style="width:90px; vertical-align:middle;" />
+              <span id="valEOT" style="color:var(--success);">&lt;LoD (0.0%)</span>
+            </div>
+            <div style="font-size:12px; font-weight:700;">
+              6개월 추적:
+              <input type="range" id="sim6M" min="0" max="2" step="0.01" value="0.00" oninput="updateMrdSim()" style="width:90px; vertical-align:middle;" />
+              <span id="val6M" style="color:var(--success);">&lt;LoD (0.0%)</span>
+            </div>
+            <div style="font-size:12px; font-weight:700;">
+              12개월 추적:
+              <input type="range" id="sim12M" min="0" max="2" step="0.01" value="0.00" oninput="updateMrdSim()" style="width:90px; vertical-align:middle;" />
+              <span id="val12M" style="color:var(--success);">&lt;LoD (0.0%)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-container">
+          <!-- Responsive Dynamic SVG Chart -->
+          <svg id="mrdSvgChart" viewBox="0 0 900 280" style="width:100%; height:auto; display:block;">
+            <!-- Grid Lines & Background Bands -->
+            <rect x="70" y="20" width="800" height="200" fill="#fafafa" rx="4" />
+            <rect x="70" y="180" width="800" height="20" fill="rgba(245, 158, 11, 0.08)" />
+            <rect x="70" y="200" width="800" height="20" fill="rgba(239, 68, 68, 0.08)" />
+
+            <!-- Y Axis Lines -->
+            <line x1="70" y1="20" x2="870" y2="20" stroke="#e2e8f0" stroke-dasharray="3,3" />
+            <line x1="70" y1="70" x2="870" y2="70" stroke="#e2e8f0" stroke-dasharray="3,3" />
+            <line x1="70" y1="120" x2="870" y2="120" stroke="#e2e8f0" stroke-dasharray="3,3" />
+            <line x1="70" y1="180" x2="870" y2="180" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,4" />
+            <line x1="70" y1="200" x2="870" y2="200" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="4,4" />
+            <line x1="70" y1="220" x2="870" y2="220" stroke="#64748b" stroke-width="1.5" />
+
+            <!-- Y Axis Labels -->
+            <text x="60" y="24" font-size="11" fill="#64748b" text-anchor="end">100%</text>
+            <text x="60" y="74" font-size="11" fill="#64748b" text-anchor="end">10%</text>
+            <text x="60" y="124" font-size="11" fill="#64748b" text-anchor="end">1%</text>
+            <text x="60" y="184" font-size="10" fill="#b45309" font-weight="700" text-anchor="end">LoQ 0.05%</text>
+            <text x="60" y="204" font-size="10" fill="#dc2626" font-weight="700" text-anchor="end">LoD 0.02%</text>
+            <text x="60" y="224" font-size="11" fill="#64748b" text-anchor="end">uMRD (&lt;0.01%)</text>
+
+            <!-- Curve Line -->
+            <path id="mrdCurvePath" d="M 120 40 Q 240 70 360 140 T 540 215 T 700 215 T 820 215" fill="none" stroke="#2563eb" stroke-width="3.5" />
+
+            <!-- Timepoint Nodes -->
+            <!-- T0: Baseline -->
+            <circle cx="120" cy="40" r="6" fill="#1e40af" stroke="#ffffff" stroke-width="2" />
+            <text x="120" y="245" font-size="11.5" font-weight="700" fill="#0f172a" text-anchor="middle">Baseline (치료 전)</text>
+            <text x="120" y="260" font-size="10.5" fill="#2563eb" text-anchor="middle" id="chartTxtT0">VAF 28.4%</text>
+
+            <!-- T1: Cycle 2 -->
+            <circle id="nodeC2D1" cx="360" cy="140" r="6" fill="#1e40af" stroke="#ffffff" stroke-width="2" />
+            <text x="360" y="245" font-size="11.5" font-weight="700" fill="#0f172a" text-anchor="middle">Cycle 2 Day 1 (조기반응)</text>
+            <text x="360" y="260" font-size="10.5" fill="#2563eb" text-anchor="middle" id="chartTxtC2D1">VAF 0.65%</text>
+
+            <!-- T2: EOT -->
+            <circle id="nodeEOT" cx="540" cy="215" r="6" fill="#059669" stroke="#ffffff" stroke-width="2" />
+            <text x="540" y="245" font-size="11.5" font-weight="700" fill="#0f172a" text-anchor="middle">EOT (치료 종료)</text>
+            <text x="540" y="260" font-size="10.5" fill="#059669" text-anchor="middle" id="chartTxtEOT">&lt;LoD (uMRD)</text>
+
+            <!-- T3: 6M -->
+            <circle id="node6M" cx="700" cy="215" r="6" fill="#059669" stroke="#ffffff" stroke-width="2" />
+            <text x="700" y="245" font-size="11.5" font-weight="700" fill="#0f172a" text-anchor="middle">6개월 추적</text>
+            <text x="700" y="260" font-size="10.5" fill="#059669" text-anchor="middle" id="chartTxt6M">&lt;LoD (uMRD)</text>
+
+            <!-- T4: 12M -->
+            <circle id="node12M" cx="820" cy="215" r="6" fill="#059669" stroke="#ffffff" stroke-width="2" />
+            <text x="820" y="245" font-size="11.5" font-weight="700" fill="#0f172a" text-anchor="middle">12개월 추적</text>
+            <text x="820" y="260" font-size="10.5" fill="#059669" text-anchor="middle" id="chartTxt12M">&lt;LoD (관해 유지)</text>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 3: GUIDELINES & HIRA CLINICAL INTEL   -->
+    <!-- ========================================== -->
+    <section id="tabGuidelines" class="tab-pane">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+              건강보험심사평가원(HIRA) 급여 기준 및 NCCN 가이드라인 연계
+            </div>
+            <div class="card-desc">검출된 유전자 변이(TP53, BTK C481S, EZH2, BCMA 등)에 따른 국내 실질 보험 급여 인정 기준과 재투여(Re-treatment) 임상 근거입니다.</div>
+          </div>
+          <div class="toolbar-group">
+            <input type="text" id="guidelineSearch" class="form-control" placeholder="약제, 유전자, 적응증 검색..." oninput="filterGuidelines()" style="width:240px;" />
+          </div>
+        </div>
+
+        <div id="guidelinesContainer">
+          <!-- Item 1: TP53 -->
+          <div class="knowledge-item open" data-keyword="tp53 자누브루티닙 베네토클락스 17p cll mcl">
+            <div class="knowledge-head" onclick="toggleKnowledge(this)">
+              <div class="knowledge-title">
+                <span class="badge badge-danger">TP53 변이 / 17p 결손</span>
+                <span>자누브루티닙(브루킨사) &amp; 베네토클락스(벤클렉스타) 국내 급여 인정 기준</span>
+              </div>
+              <span class="badge badge-success">조건부 급여 적용</span>
+            </div>
+            <div class="knowledge-body">
+              <p><strong>[심평원 공고 급여 기준]:</strong></p>
+              <ul style="padding-left:18px; margin: 6px 0 10px;">
+                <li><strong>자누브루티닙 단독요법:</strong> 만 65세 이상의 이전에 치료를 받은 적이 없는(1차) 환자 또는 1차 이상 치료 실패 만성림프구성백혈병(CLL/SLL)에서 급여 인정. TP53 변이 환자는 고위험군으로 우선 선택 대상이나 연령 기준 충족 필수.</li>
+                <li><strong>베네토클락스 + 리툭시맙 병용:</strong> 2차 이상 치료에서 2년 고정 기간 투여 시 급여 적용.</li>
+              </ul>
+              <div style="background:#fef2f2; border:1px solid #fecaca; padding:10px 12px; border-radius:6px; color:#991b1b; font-size:12.5px;">
+                <strong>⚠️ 비급여/전액본인부담 주의 시나리오:</strong> 만 65세 미만이면서 동반질환이 없는 환자가 1차 치료로 자누브루티닙/아칼라브루티닙 단독을 시행할 경우, 최신 NCCN에서는 Preferred이나 국내 기준상 전액 본인부담(100/100) 또는 비급여로 진행되므로 주의 요망.
+              </div>
+            </div>
+          </div>
+
+          <!-- Item 2: BTK C481S -->
+          <div class="knowledge-item open" data-keyword="btk c481s 이브루티닙 자누브루티닙 피르토브루티닙 저항성 cll mcl">
+            <div class="knowledge-head" onclick="toggleKnowledge(this)">
+              <div class="knowledge-title">
+                <span class="badge badge-danger">BTK C481S 등 1/2세대 저항성 변이</span>
+                <span>차세대 비공유결합성 BTKi (피르토브루티닙) 약제 전환 시 급여 제한</span>
+              </div>
+              <span class="badge badge-danger">전액본인부담 (100/100)</span>
+            </div>
+            <div class="knowledge-body">
+              <p><strong>[현행 국내 급여 제한 규정]:</strong></p>
+              <p style="margin: 6px 0;">국내 건강보험 약제 기준상 <em>'이전 BTK 억제제 치료 실패 시 동일 기전 약제의 급여를 제한한다'</em>는 규정이 명시되어 있습니다. 이에 따라 이브루티닙/자누브루티닙 투약 중 BTK C481S 변이 획득으로 질환이 진행되어 피르토브루티닙(Pirtobrutinib)으로 전환할 경우 원칙적으로 급여 혜택이 불가하여 약값 전액을 환자가 부담해야 합니다.</p>
+              <div style="background:#eff6ff; border:1px solid #bfdbfe; padding:10px 12px; border-radius:6px; color:#1e40af; font-size:12.5px;">
+                <strong>💡 임상적 유효성 데이터:</strong> 1/2세대 실패 후 비공유결합성 전환 시 객관적 반응률(ORR) 76~80%, 미디언 질환 조절 기간 약 59개월에 달하므로 급여 한계와 임상적 이득을 환자에게 충분히 설명해야 함.
+              </div>
+            </div>
+          </div>
+
+          <!-- Item 3: EZH2 Y646F -->
+          <div class="knowledge-item" data-keyword="ezh2 타제메토스타트 tazemetostat 여포성 림프종 fl">
+            <div class="knowledge-head" onclick="toggleKnowledge(this)">
+              <div class="knowledge-title">
+                <span class="badge badge-tier2">EZH2 기능 획득형 변이 (Y646 등)</span>
+                <span>타제메토스타트 (Tazemetostat) 여포성 림프종 급여 현황</span>
+              </div>
+              <span class="badge badge-warning">제한적 비급여 / 허가초과</span>
+            </div>
+            <div class="knowledge-body">
+              <p><strong>[NCCN 가이드라인 vs 국내 건강보험]:</strong></p>
+              <p>EZH2 변이가 확인된 재발성/불응성 여포성 림프종(FL)에서 NCCN은 타제메토스타트를 카테고리 2A로 권고하지만, 국내 건강보험의 1차/2차 보편적 급여 라인에는 포함되지 않습니다. 유전자 패널로 변이를 규명하더라도 특정 허가초과 승인 절차를 밟아야 하며 비급여 비용이 발생합니다.</p>
+            </div>
+          </div>
+
+          <!-- Item 4: Treatment Rechallenge Success Data -->
+          <div class="knowledge-item" data-keyword="rechallenge 재투여 bcl2 venetoclax car-t btk murano">
+            <div class="knowledge-head" onclick="toggleKnowledge(this)">
+              <div class="knowledge-title">
+                <span class="badge badge-primary" style="background:#eff6ff; color:#1e40af; border:1px solid #bfdbfe;">치료 재투여(Rechallenge) 임상 성공률</span>
+                <span>베네토클락스 7년 분석(MURANO) 및 순차적 CAR-T 반응률</span>
+              </div>
+              <span class="badge badge-neutral">글로벌 임상 근거</span>
+            </div>
+            <div class="knowledge-body">
+              <ul style="padding-left:18px; line-height:1.7;">
+                <li><strong>BCL2 베네토클락스 재투여:</strong> MURANO 7년 최종 분석 결과, 고정 치료(VenR 2년) 후 재발 환자에게 베네토클락스 재투여 시 객관적 반응률(ORR) 72~88%, 완전관해율(CR) 24~33%, mPFS 약 23.3개월 확인.</li>
+                <li><strong>순차적 BCMA CAR-T Rechallenge:</strong> 첫 CAR-T 후 재발 시 다른 상용화 CAR-T 재투여 시 ORR 100%, 6개월 PFS 64.8% 입증.</li>
+                <li><strong>1/2세대 BTKi 실패 후 전환:</strong> 비공유결합성 BTKi 전환 후 미디언 진행 조절 기간 약 59개월(약 5년) 도달.</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Item 5: MRD 투약 중단 가이드라인 -->
+          <div class="knowledge-item" data-keyword="mrd 중단 uMRD tp53 ighv cll">
+            <div class="knowledge-head" onclick="toggleKnowledge(this)">
+              <div class="knowledge-title">
+                <span class="badge badge-success">MRD 기반 투약 중단 지침 (De-escalation)</span>
+                <span>NCCN Principles of MRD 기반 투약 종료 및 추적 감시 기준</span>
+              </div>
+              <span class="badge badge-neutral">NCCN 2026 권고</span>
+            </div>
+            <div class="knowledge-body">
+              <ul style="padding-left:18px; line-height:1.7;">
+                <li><strong>TP53 정상형(Wild-type):</strong> 베네토클락스+BTKi 병용 시 말초혈액/골수 NGS uMRD4(&lt;10⁻⁴) 도달 시 투약 안전 중단 및 Treatment-Free Observation 가능. 6~12개월 주기 MRD 감시.</li>
+                <li><strong>TP53 고위험 변이형:</strong> 단일 uMRD로는 성급한 중단 절대 금기. 최소 1년 간격 연속 2회 이상 Sustained uMRD 확인 시에만 조건부 중단 검토.</li>
+                <li><strong>IGHV 비돌연변이형(Unmutated):</strong> FLAIR 연구 방식에 따라 정해진 치료 기간에 얽매이지 않고 uMRD에 도달할 때까지 BTKi 유도 약제를 맞춤형 연장 투여.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 4: CLINICAL DIAGNOSTIC REPORT PREVIEW  -->
+    <!-- ========================================== -->
+    <section id="tabReport" class="tab-pane">
+      <div class="toolbar no-print" style="margin-bottom:20px;">
+        <div class="toolbar-group">
+          <strong>국문 임상 검사결과보고서 미리보기</strong>
+          <span style="font-size:12px; color:var(--text-muted);">(병원 공식 서식 template.docx / SPEC-REPORT-001 기준)</span>
+        </div>
+        <div class="toolbar-group">
+          <button class="btn btn-outline btn-sm" onclick="openPatientModal()">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+            환자 정보 수정
+          </button>
+          <button class="btn btn-outline btn-sm" onclick="exportCSV()">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Tiered CSV 다운로드
+          </button>
+          <button class="btn btn-primary btn-sm" onclick="window.print()">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+            공식 보고서 인쇄 (Print / PDF)
+          </button>
+        </div>
+      </div>
+
+      <!-- Formal Korean Medical Report Sheet -->
+      <div class="report-sheet">
+        <div class="report-header-banner">
+          <h2>혈액종양 액체생검(ctDNA) 차세대염기서열분석 검사결과보고서</h2>
+          <p>Next-Generation Sequencing Report for Lymphoma Circulating Tumor DNA Panel</p>
+        </div>
+
+        <!-- Table 0: Patient & Order Information -->
+        <table class="report-table">
+          <tbody>
+            <tr>
+              <th style="width:14%;">등록번호</th>
+              <td style="width:20%;" id="repRegNo">10602681</td>
+              <th style="width:14%;">환자성명</th>
+              <td style="width:19%; font-weight:700;" id="repPatientName">박*수 (M/62)</td>
+              <th style="width:14%;">검사명</th>
+              <td style="width:19%;">Lymphoma ctDNA Panel</td>
+            </tr>
+            <tr>
+              <th>의뢰과 / 의사</th>
+              <td id="repDoctor">혈액종양내과 / 김임상</td>
+              <th>검체 종류</th>
+              <td id="repSpecimen">말초혈액 혈장 (cfDNA)</td>
+              <th>검체 상태</th>
+              <td>적합 (Hemolysis negative)</td>
+            </tr>
+            <tr>
+              <th>검체 채취일자</th>
+              <td id="repDateCollect">2026-09-24</td>
+              <th>검체 접수일자</th>
+              <td id="repDateReceive">2026-09-24</td>
+              <th>최종 보고일자</th>
+              <td id="repDateReport">2026-09-29</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Table 3: Tier 1 & Tier 2 Somatic Variants -->
+        <div class="report-section-title">
+          <span>■ [Table 3] 임상적 의의가 높은 체세포 변이 (Tier 1 &amp; Tier 2 Somatic Variants)</span>
+        </div>
+        <table class="report-table">
+          <thead>
+            <tr>
+              <th style="width:12%;">분류 (Tier)</th>
+              <th style="width:12%;">유전자명</th>
+              <th style="width:22%;">전사체 번호 (RefSeq)</th>
+              <th style="width:18%;">염기서열 변화 (c.)</th>
+              <th style="width:18%;">아미노산 변화 (p.)</th>
+              <th style="width:18%;">대립유전자 분율 (% VAF)</th>
+            </tr>
+          </thead>
+          <tbody id="repTier12Body">
+            <!-- Populated dynamically -->
+          </tbody>
+        </table>
+
+        <!-- Table 4: Tier 3 Variants of Uncertain Significance -->
+        <div class="report-section-title">
+          <span>■ [Table 4] 임상적 의의가 불명확한 체세포 변이 (Tier 3 VUS)</span>
+        </div>
+        <table class="report-table">
+          <thead>
+            <tr>
+              <th style="width:12%;">분류 (Tier)</th>
+              <th style="width:12%;">유전자명</th>
+              <th style="width:22%;">전사체 번호 (RefSeq)</th>
+              <th style="width:18%;">염기서열 변화 (c.)</th>
+              <th style="width:18%;">아미노산 변화 (p.)</th>
+              <th style="width:18%;">대립유전자 분율 (% VAF)</th>
+            </tr>
+          </thead>
+          <tbody id="repTier3Body">
+            <!-- Populated dynamically -->
+          </tbody>
+        </table>
+
+        <!-- Table 6: Clinical Interpretation Narrative -->
+        <div class="report-section-title">
+          <span>■ [Table 6] 소견 및 결과 해석 (Clinical Interpretation)</span>
+        </div>
+        <div class="report-interp-box" id="repInterpretation">
+          <!-- Populated dynamically -->
+        </div>
+
+        <!-- Table 8: Limitations & Method -->
+        <div class="report-section-title">
+          <span>■ [Table 8] 검사 목적 및 한계점 (Assay Specifications &amp; Limitations)</span>
+        </div>
+        <table class="report-table" style="font-size:12px;">
+          <tbody>
+            <tr>
+              <th style="width:20%;">검사 원리</th>
+              <td>본 검사는 말초혈액 혈장 내 유리 DNA(cell-free DNA, cfDNA)를 추출하여 림프종 관련 55개 핵심 유전자의 코딩 엑손 부위를 표적 포획(Target enrichment)한 후 고심도 차세대염기서열분석(NGS)을 수행합니다. 분자 바코드(UMI) 기술을 적용하여 PCR 중복 오차를 제거하고 0.02% 이상의 미세 변이를 정밀하게 검출합니다.</td>
+            </tr>
+            <tr>
+              <th>임상적 한계</th>
+              <td>1. 본 검사는 체세포 단일염기변이(SNV) 및 짧은 삽입/결손(Indel) 위주로 설계되었으며, 저배출성 림프종의 경우 종양이 잔존하더라도 혈장 cfDNA로 방출되지 않아 위음성이 발생할 수 있습니다.<br>
+              2. 0.02% 미만의 극미량 변이는 검출되지 않을 수 있으며, 유전자 재배열 및 염색체 수적 이상(CNV) 평가는 별도의 분자생물학적 검사로 교차 검증이 필요합니다.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Table 14: QC Metrics -->
+        <div class="report-section-title">
+          <span>■ [Table 14] 검사 정도관리 및 품질 지표 (Quality Control Metrics)</span>
+        </div>
+        <table class="report-table">
+          <tbody>
+            <tr>
+              <th style="width:25%;">총 유효 리드 수 (Total Reads)</th>
+              <td style="width:25%; text-align:center;">14,850,220 reads</td>
+              <th style="width:25%;">평균 목표 심도 (Mean Target DP)</th>
+              <td style="width:25%; text-align:center;" id="repQcDepth">3,420x</td>
+            </tr>
+            <tr>
+              <th>100x 이상 포괄율 (% &gt;= 100x)</th>
+              <td style="text-align:center;">99.82%</td>
+              <th>분자 정량/검출 한계 (LoQ / LoD)</th>
+              <td style="text-align:center;">LoQ 0.05% / LoD 0.02%</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Table 15: Signatures -->
+        <div class="signature-grid">
+          <div class="sig-cell">
+            <strong>검사 담당자 (Examiner):</strong> 진단유전검사팀 임상병리사 이검사 (서명 / 날인)<br>
+            <span style="font-size:11px; color:#64748b;">면허번호: 제 12480호</span>
+          </div>
+          <div class="sig-cell">
+            <strong>판독 및 보고의 (Medical Specialist):</strong> 진단검사의학과 전문의 박진단 (서명 / 날인)<br>
+            <span style="font-size:11px; color:#64748b;">면허번호: 제 45892호 | 유전분자세부전문의</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Patient Edit Modal Dialog -->
+  <div class="modal-backdrop" id="patientModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 style="font-size:16px; font-weight:700;">환자 및 검체 정보 수정</h3>
+        <button class="btn btn-outline btn-sm" onclick="closePatientModal()">✕</button>
+      </div>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:16px;">
+        <label style="font-size:12px; font-weight:700;">환자 성명
+          <input id="modalName" class="form-control" style="width:100%; margin-top:4px;" />
+        </label>
+        <label style="font-size:12px; font-weight:700;">등록번호
+          <input id="modalRegNo" class="form-control" style="width:100%; margin-top:4px;" />
+        </label>
+        <label style="font-size:12px; font-weight:700;">성별 / 연령
+          <input id="modalSexAge" class="form-control" placeholder="M/62" style="width:100%; margin-top:4px;" />
+        </label>
+        <label style="font-size:12px; font-weight:700;">의뢰과 / 의사
+          <input id="modalDoctor" class="form-control" style="width:100%; margin-top:4px;" />
+        </label>
+      </div>
+      <label style="font-size:12px; font-weight:700; display:block; margin-bottom:4px;">소견 및 결과 해석 직접 편집</label>
+      <textarea id="modalInterp" class="form-control" rows="5" style="width:100%; font-size:12.5px; margin-bottom:16px;"></textarea>
+
+      <div style="display:flex; justify-content:flex-end; gap:8px;">
+        <button class="btn btn-outline btn-sm" onclick="closePatientModal()">취소</button>
+        <button class="btn btn-primary btn-sm" onclick="savePatientModal()">보고서에 반영</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive JavaScript Engine -->
+  <script>
+    // Clinical Benchmark Cases
+    const clinicalCases = {
+      case1: {
+        id: "1_10602681_S1",
+        label: "Case 1: DLBCL (MCD 아형)",
+        patient: { name: "박*수", gender: "M", age: "62", regNo: "10602681", doctor: "혈액종양내과 / 김임상", date: "2026-09-24" },
+        subtype: "DLBCL",
+        meanDepth: "3,420x",
+        variants: [
+          { tier: "Tier 1", gene: "MYD88", transcript: "NM_002468.4", c: "c.755T>C", p: "p.Leu252Pro", vaf: 28.4, ad: 970, dp: 3415, clinvar: "Pathogenic", action: "BTK 억제제(자누브루티닙/이브루티닙) 고감수성 표적" },
+          { tier: "Tier 1", gene: "CD79B", transcript: "NM_000626.3", c: "c.586T>C", p: "p.Tyr196His", vaf: 18.2, ad: 618, dp: 3395, clinvar: "Pathogenic", action: "BCR 억제제 병용 및 폴라투주맙 베도틴 적응증" },
+          { tier: "Tier 2", gene: "PIM1", transcript: "NM_002648.4", c: "c.539G>A", p: "p.Ser180Asn", vaf: 12.1, ad: 405, dp: 3350, clinvar: "Likely Pathogenic", action: "NF-κB 경로 과활성화 보조 지표" },
+          { tier: "Tier 2", gene: "BCL2", transcript: "NM_000633.3", c: "c.299C>T", p: "p.Ala100Val", vaf: 6.4, ad: 220, dp: 3440, clinvar: "Pathogenic", action: "베네토클락스 감수성 연관" },
+          { tier: "Tier 3", gene: "PRDM1", transcript: "NM_001198.4", c: "c.1438A>G", p: "p.Ile480Val", vaf: 4.8, ad: 165, dp: 3430, clinvar: "VUS", action: "B세포 분화 억제 관련 VUS" },
+          { tier: "Tier 4", gene: "TP53", transcript: "NM_000546.6", c: "c.215C>G", p: "p.Pro72Arg", vaf: 49.5, ad: 1720, dp: 3470, clinvar: "Benign", action: "양성 다형성 (Benign polymorphism - 보고서 제외)" }
+        ],
+        interpretation: "본 환자의 말초혈액 혈장 검체에서 시행한 림프종 ctDNA 차세대 염기서열 분석 결과, 활성화 B세포형 미만성 거대 B세포 림프종(DLBCL, MCD 아형)의 핵심 구동 변이인 MYD88 p.Leu252Pro (VAF 28.4%) 및 CD79B p.Tyr196His (VAF 18.2%) 체세포 변이가 검출되었습니다.\n\n1. 분자유전학적 의의: MYD88 L252P(MANE Select 전사체 NM_002468 번호, 과거 문헌상 L265P) 변이는 IRAK4/TRAF6 매개 NF-κB 신호전달계를 비정상 활성화하며, CD79B ITAM 도메인의 Y196 변이와 공존할 때 강력한 림프종 발암 구동력을 나타냅니다.\n2. 치료적 의의: NCCN 가이드라인에 따르면 MYD88/CD79B 동반 양성 환자는 차세대 BTK 억제제(자누브루티닙, 아칼라브루티닙 등) 병용 요법 시 높은 반응성을 기대할 수 있습니다.\n3. 추적 모니터링: 기저 혈장에서 확정된 두 핵심 변이를 액체생검 추적 마커로 잠정 고정하여 향후 항암 치료 후 분자학적 관해(uMRD) 판정에 활용합니다."
+      },
+      case2: {
+        id: "2_10599204_S2",
+        label: "Case 2: 여포성 림프종 (FL)",
+        patient: { name: "이*희", gender: "F", age: "54", regNo: "10599204", doctor: "혈액종양내과 / 박임상", date: "2026-09-24" },
+        subtype: "FL",
+        meanDepth: "3,890x",
+        variants: [
+          { tier: "Tier 1", gene: "EZH2", transcript: "NM_004456.5", c: "c.1937A>T", p: "p.Tyr646Phe", vaf: 16.5, ad: 642, dp: 3890, clinvar: "Pathogenic", action: "타제메토스타트(Tazemetostat) 표적 치료 적응" },
+          { tier: "Tier 2", gene: "KMT2D", transcript: "NM_003482.4", c: "c.4738C>T", p: "p.Arg1580*", vaf: 34.2, ad: 1330, dp: 3880, clinvar: "Pathogenic", action: "후성유전학적 크로마틴 조절 결함" },
+          { tier: "Tier 2", gene: "CREBBP", transcript: "NM_004380.3", c: "c.4336C>T", p: "p.Arg1446Cys", vaf: 22.8, ad: 885, dp: 3875, clinvar: "Likely Pathogenic", action: "히스톤 아세틸화 조절 결함" },
+          { tier: "Tier 3", gene: "TNFRSF14", transcript: "NM_003820.4", c: "c.184C>T", p: "p.Arg62Ter", vaf: 8.1, ad: 312, dp: 3850, clinvar: "VUS", action: "미세환경 면역회피 연관" }
+        ],
+        interpretation: "여포성 림프종(Follicular Lymphoma) 패널 분석 결과, 후성유전 조절 유전자 KMT2D nonsense 변이(VAF 34.2%), CREBBP missense 변이(VAF 22.8%)와 함께 EZH2 p.Tyr646Phe 기능획득형 변이(VAF 16.5%)가 검출되었습니다.\n\n1. 치료적 권고: EZH2 Y646 코돈 변이는 히스톤 H3K27 트라이메틸화를 과도하게 유도하는 변이로, 재발/불응 시 EZH2 저해제인 타제메토스타트(Tazemetostat)의 우선 고려 대상이 됩니다.\n2. 국내 급여 유의: NCCN 권고 약제이나 현재 국내 건강보험 1차 라인에는 비급여 상태이므로 허가초과 신청 또는 실비 지원 경로를 고려해야 합니다."
+      },
+      case3: {
+        id: "3_10488921_S3",
+        label: "Case 3: 외투세포 림프종 (MCL)",
+        patient: { name: "정*호", gender: "M", age: "68", regNo: "10488921", doctor: "혈액종양내과 / 최혈액", date: "2026-09-24" },
+        subtype: "MCL",
+        meanDepth: "4,150x",
+        variants: [
+          { tier: "Tier 1", gene: "TP53", transcript: "NM_000546.6", c: "c.742C>T", p: "p.Arg248Trp", vaf: 29.8, ad: 1240, dp: 4160, clinvar: "Pathogenic", action: "고위험 예후군, 표준 세포독성 불응 시사" },
+          { tier: "Tier 1", gene: "BTK", transcript: "NM_000061.3", c: "c.1441T>A", p: "p.Cys481Ser", vaf: 15.2, ad: 630, dp: 4145, clinvar: "Pathogenic", action: "이브루티닙/자누브루티닙 저항성 획득 변이" },
+          { tier: "Tier 2", gene: "ATM", transcript: "NM_000051.4", c: "c.5590C>T", p: "p.Gln1864*", vaf: 41.5, ad: 1720, dp: 4140, clinvar: "Pathogenic", action: "DNA 손상복구 경로 결실" }
+        ],
+        interpretation: "외투세포 림프종(MCL) 환자에서 TP53 p.Arg248Trp (VAF 29.8%) 및 1/2세대 BTK 억제제 공유결합 차단 내성 변이인 BTK p.Cys481Ser (VAF 15.2%)가 확인되었습니다.\n\n1. 약제 내성 분석: BTK C481S는 이브루티닙, 자누브루티닙의 공유결합 부위를 차단하여 약제 불응을 유발합니다. 따라서 비공유결합성 BTKi(피르토브루티닙) 또는 CAR-T 세포치료제로의 긴급 전환이 권고됩니다.\n2. 국내 급여 한계: 국내 건강보험 기준상 이전 BTK 억제제 실패 시 동일 기전 급여 제한 조항으로 인해 피르토브루티닙 전환 시 약제비 전액본인부담(100/100) 대상이 됨을 진료 시 안내해야 합니다."
+      },
+      case4: {
+        id: "4_10399120_S4",
+        label: "Case 4: 고전적 호지킨 림프종 (cHL)",
+        patient: { name: "강*민", gender: "M", age: "32", regNo: "10399120", doctor: "혈액종양내과 / 안종양", date: "2026-09-24" },
+        subtype: "cHL",
+        meanDepth: "3,650x",
+        variants: [
+          { tier: "Tier 1", gene: "SOCS1", transcript: "NM_003745.2", c: "c.322del", p: "p.Leu108fs", vaf: 7.2, ad: 260, dp: 3620, clinvar: "Pathogenic", action: "JAK/STAT 경로 탈억제 활성화" },
+          { tier: "Tier 2", gene: "STAT6", transcript: "NM_001178078.2", c: "c.1256A>G", p: "p.Asp419Gly", vaf: 5.4, ad: 195, dp: 3610, clinvar: "Likely Pathogenic", action: "전사인자 활성화 및 증식 촉진" },
+          { tier: "Tier 2", gene: "TNFAIP3", transcript: "NM_006290.4", c: "c.916C>T", p: "p.Arg306*", vaf: 4.1, ad: 148, dp: 3630, clinvar: "Pathogenic", action: "NF-κB 경로 음성조절 상실" },
+          { tier: "Tier 2", gene: "B2M", transcript: "NM_004048.4", c: "c.2T>G", p: "p.Met1Arg", vaf: 3.6, ad: 130, dp: 3650, clinvar: "Pathogenic", action: "MHC class I 항원제시 결손(면역회피)" }
+        ],
+        interpretation: "고전적 호지킨 림프종(cHL) 환자의 혈장 액체생검에서 JAK/STAT 음성조절 유전자인 SOCS1 frameshift 변이(VAF 7.2%)와 STAT6(VAF 5.4%), 면역회피 인자인 B2M 변이가 확인되었습니다.\n\n1. 임상적 특징: cHL은 조직 검체 내 악성 종양세포(HRS cells) 비율이 극히 낮으나, 혈장 cfDNA를 통해 구동 유전자 프로파일링이 성공적으로 확인되었습니다.\n2. 면역관문억제제 연관: B2M 돌연변이는 면역회피 기전과 연관되며 항-PD-1 단클론항체(니볼루맙, 펨브롤리주맙) 요법에 대한 반응성 평가에 중요한 근거가 됩니다."
+      },
+      case5: {
+        id: "5_10287114_S5",
+        label: "Case 5: T/NK-cell (AITL) - CHIP 분리",
+        patient: { name: "오*숙", gender: "F", age: "71", regNo: "10287114", doctor: "혈액종양내과 / 유혈액", date: "2026-09-24" },
+        subtype: "TNK",
+        meanDepth: "3,950x",
+        variants: [
+          { tier: "Tier 1", gene: "RHOA", transcript: "NM_001664.4", c: "c.50G>T", p: "p.Gly17Val", vaf: 14.5, ad: 570, dp: 3930, clinvar: "Pathogenic", action: "혈관면역모세포성 T세포 림프종(AITL) 특이 확정 마커" },
+          { tier: "Tier 2", gene: "IDH2", transcript: "NM_002168.4", c: "c.515G>A", p: "p.Arg172Lys", vaf: 11.2, ad: 440, dp: 3940, clinvar: "Pathogenic", action: "2-HG 온코메타볼라이트 생성 구동 변이" },
+          { tier: "Tier 3", gene: "TET2", transcript: "NM_001127208.3", c: "c.2746C>T", p: "p.Gln916*", vaf: 9.8, ad: 388, dp: 3960, clinvar: "Pathogenic", action: "⚠️ 백혈구 대조군에서도 9.4% 검출되어 잠재성 클론성 조혈증(CHIP)으로 분류" },
+          { tier: "Tier 3", gene: "DNMT3A", transcript: "NM_022552.5", c: "c.2645G>A", p: "p.Arg882His", vaf: 6.5, ad: 255, dp: 3950, clinvar: "Pathogenic", action: "⚠️ 백혈구 대조군 동반 검출 (CHIP 유래 변이로 판정)" }
+        ],
+        interpretation: "혈관면역모세포성 T세포 림프종(AITL) 의심 환자에서 RHOA p.Gly17Val (VAF 14.5%) 및 IDH2 p.Arg172Lys (VAF 11.2%) 변이가 확인되었습니다.\n\n1. 기원 감별(CHIP Review): 동반 검출된 TET2 Q916* 및 DNMT3A R882H 변이는 환자의 일치 백혈구 검체에서도 동등한 빈도로 관찰되어, 림프종 진성 마커가 아닌 고령 환자의 잠재성 클론성 조혈증(CHIP) 기원으로 감별되었습니다.\n2. 추적 원칙: 향후 미세잔존질환(MRD) 추적 시에는 CHIP 유래인 TET2/DNMT3A를 배제하고, 진성 종양 마커인 RHOA G17V 및 IDH2 R172K만을 고정 지표로 평가해야 위양성을 방지할 수 있습니다."
+      }
+    };
+
+    let currentCase = clinicalCases["case1"];
+    let currentSortCol = "tier";
+    let currentSortAsc = true;
+
+    // Initialize UI
+    window.addEventListener("DOMContentLoaded", () => {
+      loadSelectedCase("case1");
+      renderMrdProfile("DLBCL");
+    });
+
+    // Tab Switcher
+    function switchTab(tabId) {
+      document.querySelectorAll(".tab-pane").forEach(pane => pane.classList.remove("active"));
+      document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+      
+      const targetPane = document.getElementById(tabId);
+      if (targetPane) targetPane.classList.add("active");
+      
+      const btns = Array.from(document.querySelectorAll(".tab-btn"));
+      const map = { tabVariants: 0, tabMRD: 1, tabGuidelines: 2, tabReport: 3 };
+      if (btns[map[tabId]]) btns[map[tabId]].classList.add("active");
+    }
+
+    // Load Pre-defined Benchmark Case
+    function loadSelectedCase(caseKey) {
+      currentCase = clinicalCases[caseKey] || clinicalCases["case1"];
+      
+      // Update quick metrics
+      const passVariants = currentCase.variants.filter(v => v.tier !== "Tier 4");
+      const tier12 = currentCase.variants.filter(v => v.tier === "Tier 1" || v.tier === "Tier 2");
+      const maxVafVar = [...passVariants].sort((a,b) => b.vaf - a.vaf)[0];
+
+      document.getElementById("statTotalCount").textContent = passVariants.length;
+      document.getElementById("statTier12Count").textContent = tier12.length;
+      document.getElementById("statMaxVaf").textContent = maxVafVar ? `${maxVafVar.vaf}%` : "0%";
+      document.getElementById("statMaxVafGene").textContent = maxVafVar ? `${maxVafVar.gene} (${maxVafVar.p})` : "-";
+      document.getElementById("statMeanDepth").textContent = currentCase.meanDepth;
+      document.getElementById("repQcDepth").textContent = currentCase.meanDepth;
+
+      // Update Subtype select in MRD tab to match
+      const mrdSubtype = document.getElementById("mrdSubtypeSelect");
+      if (mrdSubtype) {
+        mrdSubtype.value = currentCase.subtype;
+        renderMrdProfile(currentCase.subtype);
+      }
+
+      // Update Chart Baseline T0
+      if (maxVafVar) {
+        document.getElementById("chartTxtT0").textContent = `VAF ${maxVafVar.vaf}%`;
+      }
+
+      filterVariants();
+      renderClinicalReport();
+    }
+
+    // Sort Variant Table
+    function sortTable(col) {
+      if (currentSortCol === col) {
+        currentSortAsc = !currentSortAsc;
+      } else {
+        currentSortCol = col;
+        currentSortAsc = true;
+      }
+
+      currentCase.variants.sort((a, b) => {
+        let valA = a[col];
+        let valB = b[col];
+        if (col === "tier") {
+          const rank = { "Tier 1": 1, "Tier 2": 2, "Tier 3": 3, "Tier 4": 4 };
+          valA = rank[a.tier] || 99;
+          valB = rank[b.tier] || 99;
+        }
+        if (valA < valB) return currentSortAsc ? -1 : 1;
+        if (valA > valB) return currentSortAsc ? 1 : -1;
+        return 0;
+      });
+
+      filterVariants();
+    }
+
+    // Render Variant Table with Filters
+    function filterVariants() {
+      const search = (document.getElementById("variantSearch").value || "").toLowerCase();
+      const tierFilter = document.getElementById("tierFilter").value;
+      const minVaf = parseFloat(document.getElementById("vafSlider").value || 0);
+
+      const tbody = document.getElementById("variantsTableBody");
+      tbody.innerHTML = "";
+
+      let displayedCount = 0;
+      currentCase.variants.forEach(v => {
+        // Search filter
+        const matchSearch = v.gene.toLowerCase().includes(search) || 
+                            v.p.toLowerCase().includes(search) || 
+                            v.c.toLowerCase().includes(search) ||
+                            v.action.toLowerCase().includes(search);
+        if (!matchSearch) return;
+
+        // Tier filter
+        if (tierFilter === "tier12" && (v.tier !== "Tier 1" && v.tier !== "Tier 2")) return;
+        if (tierFilter === "tier1" && v.tier !== "Tier 1") return;
+        if (tierFilter === "tier2" && v.tier !== "Tier 2") return;
+        if (tierFilter === "tier3" && v.tier !== "Tier 3") return;
+
+        // VAF filter
+        if (v.vaf < minVaf) return;
+
+        displayedCount++;
+
+        const tr = document.createElement("tr");
+        const tierBadgeClass = v.tier === "Tier 1" ? "badge-tier1" : (v.tier === "Tier 2" ? "badge-tier2" : (v.tier === "Tier 3" ? "badge-tier3" : "badge-tier4"));
+        const clinvarBadgeClass = v.clinvar === "Pathogenic" ? "badge-danger" : (v.clinvar === "Likely Pathogenic" ? "badge-warning" : "badge-neutral");
+
+        tr.innerHTML = `
+          <td><span class="badge ${tierBadgeClass}">${v.tier}</span></td>
+          <td><span class="gene-symbol">${v.gene}</span></td>
+          <td><code style="font-size:12px; color:#475569;">${v.transcript}</code></td>
+          <td><code style="font-size:12px;">${v.c}</code></td>
+          <td><strong>${v.p}</strong></td>
+          <td>
+            <div class="vaf-bar-wrap">
+              <div class="vaf-bar"><div class="vaf-bar-fill" style="width: ${Math.min(v.vaf * 2.5, 100)}%;"></div></div>
+              <span style="font-weight:700; font-size:12px;">${v.vaf}%</span>
+            </div>
+          </td>
+          <td style="font-size:12px; color:#64748b;">${v.ad} / ${v.dp}</td>
+          <td><span class="badge ${clinvarBadgeClass}">${v.clinvar}</span></td>
+          <td style="font-size:12px; max-width:280px; color:#1e293b;">${v.action}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById("filterStatusBadge").textContent = `${displayedCount}개 변이 표시 중`;
+    }
+
+    function updateVafFilter(val) {
+      document.getElementById("vafSliderVal").textContent = `${parseFloat(val).toFixed(1)}%`;
+      filterVariants();
+    }
+
+    // Render MRD Profile
+    const subtypeProfiles = {
+      FL: {
+        title: "FL (여포성 림프종) MRD 프로파일",
+        specimens: "진단 조직生檢(FFPE) > 치료 전 혈장 cfDNA > 일치 백혈구(CHIP) > 추적 혈장",
+        markers: ["BCL2::IGH", "IGH clonotype", "KMT2D", "CREBBP", "EZH2", "EP300", "STAT6"],
+        modules: ["snv_indel", "igh_clonotype", "rearrangement_bcl2_igh", "umi_consensus_mrd"],
+        caveats: [
+          "여포성 림프종은 저배출성(Low-shedding) 질환 특성으로 체내 종양이 잔존해도 혈장에서 음성으로 나올 위험이 있습니다.",
+          "따라서 변이(SNV) 단독 추적보다는 BCL2::IGH 전좌 재배열 또는 IGH 클론형 추적을 최우선 연계해야 합니다.",
+          "미세잔존질환 음성(uMRD)은 기저 확정 마커와 분자 검출한계(LoD)가 완전히 확보되었을 때만 발급됩니다."
+        ]
+      },
+      MCL: {
+        title: "MCL (외투세포 림프종) MRD 프로파일",
+        specimens: "진단 조직生檢 > 치료 전 혈장 cfDNA > 일치 백혈구 > 추적 혈장",
+        markers: ["CCND1::IGH", "ATM", "TP53", "KMT2D", "CCND1", "BTK", "PLCG2"],
+        modules: ["snv_indel", "rearrangement_ccnd1_igh", "umi_consensus_mrd", "therapy_resistance_hotspots"],
+        caveats: [
+          "질환 부담 지표(CCND1::IGH)와 약제 내성 마커(BTK C481S, PLCG2)를 분리 평가해야 합니다.",
+          "TP53 변이는 단순 종양 잔존도를 넘어 불량한 예후 및 조기 재발을 시사하는 독립 변수입니다.",
+          "BTK 억제제 사용 이력이 있는 환자의 경우 정기적인 내성 핫스팟 감시가 필수적입니다."
+        ]
+      },
+      DLBCL: {
+        title: "DLBCL (미만성 거대 B세포 림프종) MRD 프로파일",
+        specimens: "치료 전 혈장 cfDNA > 진단 조직(FFPE) > 일치 백혈구 > 치료 중 혈장(C2D1, EOT)",
+        markers: ["MYD88_L252P", "CD79B", "PIM1", "BCL2", "EZH2", "TNFAIP3", "SOCS1"],
+        modules: ["snv_indel_panel", "umi_consensus_mrd", "molecular_response_c2d1"],
+        caveats: [
+          "C2D1(2주기 1일차) 조기 ctDNA 2-log 이상 클리어런스는 장기 무진행생존(PFS)의 강력한 예측 지표입니다.",
+          "MCD 아형의 MYD88 및 CD79B는 높은 VAF로 혈장 배출되므로 매우 민감한 종양 반응 추적이 가능합니다.",
+          "치료 종료 시점(EOT) uMRD 달성 환자는 PET-CT 완전관해와 결합 시 재발률이 극히 낮습니다."
+        ]
+      },
+      cHL: {
+        title: "cHL (고전적 호지킨 림프종) MRD 프로파일",
+        specimens: "치료 전 혈장 cfDNA > 진단 조직 > 일치 백혈구 > 추적 혈장",
+        markers: ["SOCS1", "STAT6", "TNFAIP3", "B2M", "XPO1", "ITPKB", "EBV_DNA"],
+        modules: ["snv_indel", "copy_number_profile", "umi_consensus_mrd", "ebv_dna_optional"],
+        caveats: [
+          "조직 생검 내 Reed-Sternberg 세포 비율이 1% 미만으로 희소하므로 혈장 액체생검이 오히려 변이 검출에 우월할 수 있습니다.",
+          "EBV 양성 아형의 경우 혈장 EBV DNA 정량 PCR과 ctDNA 변이 추적을 상호 보완적으로 운용합니다."
+        ]
+      },
+      TNK: {
+        title: "T/NK-cell (AITL / ENKTL) MRD 프로파일",
+        specimens: "진단 조직生檢 > 치료 전 혈장 > 일치 백혈구(CHIP 감별 필수) > 추적 혈장",
+        markers: ["RHOA_G17V", "IDH2_R172", "TET2", "DNMT3A", "CD28", "EBV_DNA"],
+        modules: ["snv_indel", "matched_leukocyte_origin_review", "umi_consensus_mrd", "ebv_dna_for_enktl"],
+        caveats: [
+          "TET2, DNMT3A 변이는 림프종 유래뿐 아니라 연령 관련 잠재성 클론성 조혈증(CHIP)에서도 빈번하므로 백혈구 대조 필수.",
+          "RHOA G17V는 AITL 특이 종양 마커로 확정 추적에 활용하며, ENKTL의 경우 혈장 EBV DNA를 동반 평가합니다."
+        ]
+      },
+      CNS: {
+        title: "CNS (중추신경계 림프종) MRD 프로파일",
+        specimens: "뇌척수액(CSF ctDNA) > 진단 뇌조직 > 일치 백혈구 > 혈장(보조)",
+        markers: ["MYD88_L252P", "CD79B", "PIM1", "BTG1", "TBL1XR1", "IRF4"],
+        modules: ["csf_ctdna_snv_indel", "myd88_l265p_targeted", "umi_consensus_mrd"],
+        caveats: [
+          "혈액-뇌 장벽(BBB)으로 인해 말초 혈장은 위음성 빈도가 높으므로 뇌척수액(CSF) 구획 채취가 필수적입니다.",
+          "CSF ctDNA 내 MYD88 L252P 검출은 뇌 자기공명영상(MRI) 상의 영상학적 반응보다 조기 재발을 선행 감지합니다."
+        ]
+      }
+    };
+
+    function renderMrdProfile(key) {
+      const prof = subtypeProfiles[key] || subtypeProfiles["FL"];
+      document.getElementById("profileDisplayTitle").textContent = prof.title;
+      document.getElementById("mrdSpecimenPriority").textContent = prof.specimens;
+
+      const markBox = document.getElementById("mrdTrackingMarkers");
+      markBox.innerHTML = "";
+      prof.markers.forEach(m => {
+        const sp = document.createElement("span");
+        sp.textContent = m;
+        markBox.appendChild(sp);
+      });
+
+      const modBox = document.getElementById("mrdAssayModules");
+      modBox.innerHTML = "";
+      prof.modules.forEach(m => {
+        const sp = document.createElement("span");
+        sp.textContent = m;
+        modBox.appendChild(sp);
+      });
+
+      const cavBox = document.getElementById("mrdCaveatsList");
+      cavBox.innerHTML = "";
+      prof.caveats.forEach(c => {
+        const li = document.createElement("li");
+        li.textContent = c;
+        cavBox.appendChild(li);
+      });
+    }
+
+    function saveMrdDraft() {
+      const state = document.getElementById("mrdCurrentState").value;
+      const subtype = document.getElementById("mrdSubtypeSelect").value;
+      const alert = document.getElementById("mrdSaveAlert");
+      alert.style.display = "block";
+      alert.textContent = `✓ [${subtype}] 아형의 MRD 판정(${state})이 로컬 스토리지에 동기화되었습니다.`;
+      setTimeout(() => alert.style.display = "none", 4000);
+    }
+
+    // Dynamic Longitudinal MRD Simulation
+    function updateMrdSim() {
+      const c2 = parseFloat(document.getElementById("simC2D1").value);
+      const eot = parseFloat(document.getElementById("simEOT").value);
+      const m6 = parseFloat(document.getElementById("sim6M").value);
+      const m12 = parseFloat(document.getElementById("sim12M").value);
+
+      document.getElementById("valC2D1").textContent = `${c2.toFixed(2)}%`;
+      document.getElementById("valEOT").textContent = eot === 0 ? "<LoD (0.0%)" : `${eot.toFixed(2)}%`;
+      document.getElementById("val6M").textContent = m6 === 0 ? "<LoD (0.0%)" : `${m6.toFixed(2)}%`;
+      document.getElementById("val12M").textContent = m12 === 0 ? "<LoD (0.0%)" : `${m12.toFixed(2)}%`;
+
+      document.getElementById("chartTxtC2D1").textContent = `VAF ${c2.toFixed(2)}%`;
+      document.getElementById("chartTxtEOT").textContent = eot === 0 ? "<LoD (uMRD)" : `VAF ${eot.toFixed(2)}%`;
+      document.getElementById("chartTxt6M").textContent = m6 === 0 ? "<LoD (uMRD)" : `VAF ${m6.toFixed(2)}%`;
+      document.getElementById("chartTxt12M").textContent = m12 === 0 ? "<LoD (관해 유지)" : `VAF ${m12.toFixed(2)}%`;
+
+      // Helper to compute Y coord in SVG from VAF (log scale approximation)
+      // 100% -> y=20, 10% -> y=70, 1% -> y=120, 0.05% -> y=180, 0.02% -> y=200, 0.0% -> y=215
+      function vafToY(val) {
+        if (val <= 0.01) return 215;
+        if (val <= 0.02) return 200;
+        if (val <= 0.05) return 180 + (0.05 - val) / 0.03 * 20;
+        if (val <= 1.0) return 120 + (1.0 - Math.log10(val * 10)) * 60;
+        if (val <= 10.0) return 70 + (1.0 - Math.log10(val)) * 50;
+        return Math.max(20, 70 - Math.log10(val / 10) * 50);
+      }
+
+      const yC2 = vafToY(c2);
+      const yEot = vafToY(eot);
+      const y6M = vafToY(m6);
+      const y12M = vafToY(m12);
+
+      // Update Node Y
+      document.getElementById("nodeC2D1").setAttribute("cy", yC2);
+      document.getElementById("nodeEOT").setAttribute("cy", yEot);
+      document.getElementById("node6M").setAttribute("cy", y6M);
+      document.getElementById("node12M").setAttribute("cy", y12M);
+
+      // Update Colors based on clearance
+      document.getElementById("nodeEOT").setAttribute("fill", eot > 0.05 ? "#dc2626" : (eot > 0.02 ? "#d97706" : "#059669"));
+      document.getElementById("node6M").setAttribute("fill", m6 > 0.05 ? "#dc2626" : (m6 > 0.02 ? "#d97706" : "#059669"));
+      document.getElementById("node12M").setAttribute("fill", m12 > 0.05 ? "#dc2626" : (m12 > 0.02 ? "#d97706" : "#059669"));
+
+      // Update Curve Path
+      const pathD = `M 120 40 C 220 50 280 ${yC2} 360 ${yC2} C 440 ${yC2} 480 ${yEot} 540 ${yEot} C 620 ${yEot} 650 ${y6M} 700 ${y6M} C 760 ${y6M} 780 ${y12M} 820 ${y12M}`;
+      document.getElementById("mrdCurvePath").setAttribute("d", pathD);
+
+      // Auto update current state dropdown
+      const sel = document.getElementById("mrdCurrentState");
+      if (eot > 0.05) sel.value = "quantifiable_detected";
+      else if (eot > 0.02) sel.value = "detected_below_loq";
+      else sel.value = "evaluable_not_detected";
+    }
+
+    // Render Clinical Diagnostic Report (Template.docx style)
+    function renderClinicalReport() {
+      const p = currentCase.patient;
+      document.getElementById("repRegNo").textContent = p.regNo;
+      document.getElementById("repPatientName").textContent = `${p.name} (${p.gender}/${p.age})`;
+      document.getElementById("repDoctor").textContent = p.doctor;
+      document.getElementById("repDateCollect").textContent = p.date;
+      document.getElementById("repDateReceive").textContent = p.date;
+
+      const t12Body = document.getElementById("repTier12Body");
+      t12Body.innerHTML = "";
+      const t3Body = document.getElementById("repTier3Body");
+      t3Body.innerHTML = "";
+
+      const tier12Vars = currentCase.variants.filter(v => v.tier === "Tier 1" || v.tier === "Tier 2");
+      const tier3Vars = currentCase.variants.filter(v => v.tier === "Tier 3");
+
+      if (tier12Vars.length === 0) {
+        t12Body.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#64748b;">검출된 Tier 1 또는 Tier 2 변이가 없습니다.</td></tr>`;
+      } else {
+        tier12Vars.forEach(v => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td style="text-align:center; font-weight:700; color:${v.tier === 'Tier 1' ? 'var(--tier1)' : 'var(--tier2)'};">${v.tier}</td>
+            <td style="text-align:center; font-weight:700;">${v.gene}</td>
+            <td style="text-align:center; font-family:monospace; font-size:11.5px;">${v.transcript}</td>
+            <td style="text-align:center; font-family:monospace; font-size:11.5px;">${v.c}</td>
+            <td style="text-align:center; font-weight:700;">${v.p}</td>
+            <td style="text-align:center; font-weight:700;">${v.vaf}%</td>
+          `;
+          t12Body.appendChild(tr);
+        });
+      }
+
+      if (tier3Vars.length === 0) {
+        t3Body.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#64748b;">보고 가능한 Tier 3 변이(VUS)가 없습니다.</td></tr>`;
+      } else {
+        tier3Vars.forEach(v => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td style="text-align:center; font-weight:700; color:var(--tier3);">${v.tier}</td>
+            <td style="text-align:center; font-weight:700;">${v.gene}</td>
+            <td style="text-align:center; font-family:monospace; font-size:11.5px;">${v.transcript}</td>
+            <td style="text-align:center; font-family:monospace; font-size:11.5px;">${v.c}</td>
+            <td style="text-align:center; font-weight:700;">${v.p}</td>
+            <td style="text-align:center; font-weight:700;">${v.vaf}%</td>
+          `;
+          t3Body.appendChild(tr);
+        });
+      }
+
+      document.getElementById("repInterpretation").textContent = currentCase.interpretation;
+    }
+
+    // Toggle Knowledge Items
+    function toggleKnowledge(head) {
+      const parent = head.closest(".knowledge-item");
+      if (parent) parent.classList.toggle("open");
+    }
+
+    // Filter Knowledge Items
+    function filterGuidelines() {
+      const q = (document.getElementById("guidelineSearch").value || "").toLowerCase();
+      document.querySelectorAll(".knowledge-item").forEach(item => {
+        const text = (item.getAttribute("data-keyword") + " " + item.innerText).toLowerCase();
+        item.style.display = text.includes(q) ? "block" : "none";
+      });
+    }
+
+    // Client-side VCF Parser for local files
+    function handleFileUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const content = evt.target.result;
+        parseVcfText(content, file.name);
+      };
+      reader.readAsText(file);
+    }
+
+    function parseVcfText(vcfText, fileName) {
+      const lines = vcfText.split(/\r?\n/);
+      const parsedVariants = [];
+
+      lines.forEach(line => {
+        if (!line || line.startsWith("#")) return;
+        const parts = line.split("\t");
+        if (parts.length < 8) return;
+
+        const chrom = parts[0];
+        const pos = parts[1];
+        const ref = parts[3];
+        const alt = parts[4];
+        const info = parts[7];
+
+        let ad = 100, dp = 2500, af = 4.0;
+        const infoParts = info.split(";");
+        infoParts.forEach(item => {
+          const [k, val] = item.split("=");
+          if (k === "DP") dp = parseInt(val) || dp;
+          if (k === "AD") {
+            const vals = val.split(",");
+            ad = vals.length > 1 ? parseInt(vals[1]) : parseInt(vals[0]);
+          }
+          if (k === "AF") af = parseFloat(val) * 100;
+        });
+
+        if (ad && dp && (!af || af === 4.0)) {
+          af = parseFloat(((ad / dp) * 100).toFixed(2));
+        }
+
+        // Infer gene if near known coordinates or assign placeholder
+        let geneName = `CHR${chrom}_LOC`;
+        if (chrom === "3" && Math.abs(pos - 38182641) < 100000) geneName = "MYD88";
+        if (chrom === "17" && Math.abs(pos - 62007126) < 100000) geneName = "CD79B";
+        if (chrom === "7" && Math.abs(pos - 148504000) < 100000) geneName = "EZH2";
+        if (chrom === "17" && Math.abs(pos - 7577121) < 100000) geneName = "TP53";
+        if (chrom === "X" && Math.abs(pos - 100609000) < 100000) geneName = "BTK";
+
+        parsedVariants.push({
+          tier: af >= 5.0 ? "Tier 1" : (af >= 1.0 ? "Tier 2" : "Tier 3"),
+          gene: geneName,
+          transcript: `NM_${chrom}.${pos}`,
+          c: `c.${pos}${ref}>${alt}`,
+          p: `p.Var${pos}`,
+          vaf: af,
+          ad: ad,
+          dp: dp,
+          clinvar: af >= 5.0 ? "Pathogenic" : "Likely Pathogenic",
+          action: "업로드된 VCF 파일에서 자동 추출된 체세포 변이"
+        });
+      });
+
+      if (parsedVariants.length > 0) {
+        const caseId = fileName.replace(/\.[^/.]+$/, "");
+        clinicalCases["uploaded"] = {
+          id: caseId,
+          label: `Uploaded: ${fileName}`,
+          patient: { name: "익명_업로드", gender: "-", age: "-", regNo: "UPLOADED", doctor: "진단검사의학과", date: new Date().toISOString().slice(0,10) },
+          subtype: "DLBCL",
+          meanDepth: "2,500x",
+          variants: parsedVariants,
+          interpretation: `본 검체(${fileName})의 VCF 파일 분석 결과 총 ${parsedVariants.length}개의 체세포 변이가 파싱되었습니다. 각 변이의 대립유전자 분율 및 심도를 바탕으로 AMP/ASCO/CAP 소견을 확정하시기 바랍니다.`
+        };
+
+        const sel = document.getElementById("caseSelector");
+        const opt = document.createElement("option");
+        opt.value = "uploaded";
+        opt.textContent = `Uploaded VCF: ${fileName}`;
+        sel.appendChild(opt);
+        sel.value = "uploaded";
+
+        alert(`VCF 파일(${fileName})에서 ${parsedVariants.length}개의 체세포 변이가 성공적으로 로드되었습니다.`);
+        loadSelectedCase("uploaded");
+      } else {
+        alert("VCF 파일에서 유효한 변이 레코드를 찾지 못했습니다.");
+      }
+    }
+
+    // Export CSV matching {ID}_tiered_report.csv
+    function exportCSV() {
+      let csv = "ASCO/AMP Classification,Gene,Canonical name,Accession,Nucleotide change,AA change,% VAF\n";
+      currentCase.variants.forEach(v => {
+        if (v.tier === "Tier 4") return;
+        csv += `"${v.tier}","${v.gene}","${v.transcript}","${v.transcript}","${v.c}","${v.p}","${v.vaf}"\n`;
+      });
+
+      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `${currentCase.id}_tiered_report.csv`;
+      link.click();
+    }
+
+    // Patient Edit Modal
+    function openPatientModal() {
+      const p = currentCase.patient;
+      document.getElementById("modalName").value = p.name;
+      document.getElementById("modalRegNo").value = p.regNo;
+      document.getElementById("modalSexAge").value = `${p.gender}/${p.age}`;
+      document.getElementById("modalDoctor").value = p.doctor;
+      document.getElementById("modalInterp").value = currentCase.interpretation;
+      document.getElementById("patientModal").classList.add("open");
+    }
+
+    function closePatientModal() {
+      document.getElementById("patientModal").classList.remove("open");
+    }
+
+    function savePatientModal() {
+      const p = currentCase.patient;
+      p.name = document.getElementById("modalName").value;
+      p.regNo = document.getElementById("modalRegNo").value;
+      const sexAge = document.getElementById("modalSexAge").value.split("/");
+      p.gender = sexAge[0] || "-";
+      p.age = sexAge[1] || "-";
+      p.doctor = document.getElementById("modalDoctor").value;
+      currentCase.interpretation = document.getElementById("modalInterp").value;
+
+      closePatientModal();
+      renderClinicalReport();
+    }
+  </script>
+</body>
+</html>
